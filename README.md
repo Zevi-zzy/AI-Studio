@@ -1,57 +1,57 @@
-# React + TypeScript + Vite
+# Zevi AI Studio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Zevi AI Studio 是一款专为小红书创作者打造的智能内容生产工具。它集成了灵感生成、AI 辅助写作、图文排版、素材管理等功能，帮助创作者从选题到成稿全流程提效。
 
-Currently, two official plugins are available:
+## 核心功能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+*   **💡 找灵感 (Inspiration)**
+    *   AI 智能生成爆款选题（基于 DeepSeek 模型）。
+    *   一键采纳灵感，自动生成标题和摘要。
+*   **✍️ 来创作 (Creation)**
+    *   **智能标题优化**：AI 润色标题，增加 Emoji 和点击欲望。
+    *   **智能正文写作**：AI 扩写、润色文案，自动分段，符合小红书风格。
+    *   **图文卡片**：支持多图排版和描述。
+    *   **素材插入**：写作时可直接调用素材库中的金句和图片。
+*   **📦 看素材 (Materials)**
+    *   **素材管理**：上传图片、录入金句/话术。
+    *   **标签筛选**：支持按类型（图片/文本）和标签快速检索素材。
+*   **👤 个人中心 (Profile)**
+    *   创作数据统计。
+    *   已发布作品管理。
 
-## Expanding the ESLint configuration
+## 技术栈
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+*   **前端框架**: React + TypeScript + Vite
+*   **UI 库**: Tailwind CSS + Lucide React
+*   **状态管理**: Zustand
+*   **本地存储**: IndexedDB (Dexie.js)
+*   **编辑器**: Tiptap (Headless wrapper around ProseMirror)
+*   **AI 模型**: DeepSeek-V3 (via HTTP API)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 快速开始
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+1.  克隆仓库：
+    ```bash
+    git clone https://github.com/Zevi-zzy/AI-Studio.git
+    ```
+2.  安装依赖：
+    ```bash
+    npm install
+    ```
+3.  配置环境变量：
+    在根目录创建 `.env` 文件，填入您的 DeepSeek API Key：
+    ```env
+    VITE_DEEPSEEK_API_KEY=your_api_key_here
+    ```
+4.  启动开发服务器：
+    ```bash
+    npm run dev
+    ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 贡献
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+欢迎提交 Issue 和 Pull Request！
+
+## 许可证
+
+MIT
