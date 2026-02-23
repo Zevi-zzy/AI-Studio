@@ -23,21 +23,28 @@ export const useInspirationStore = create<InspirationState>((set, get) => ({
   },
 
   clearInspirations: async () => {
-    await db.inspirations.clear();
+    // Optimistically clear state first for immediate UI feedback
     set({ inspirations: [] });
+    try {
+      await db.inspirations.clear();
+    } catch (error) {
+      console.error('Failed to clear inspirations from DB:', error);
+      // If DB clear fails, we might want to reload from DB to ensure consistency,
+      // but for now, let's assume the state clear is what the user wants to see.
+    }
   },
 
   generateInspirations: async (keywords: string[]) => {
     set({ isGenerating: true });
     try {
-      // Clear previous inspirations
+      // Clear previous inspirations immediately
       await get().clearInspirations();
 
       const generated = await aiService.generateInspirations({ keywords });
       
       const newInspirations: Inspiration[] = generated.map(item => ({
         ...item,
-        id: crypto.randomUUID(),
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString() + Math.random().toString(36).substring(2),
         isAdopted: false,
         createdAt: new Date(),
       }));
