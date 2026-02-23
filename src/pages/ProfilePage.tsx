@@ -4,7 +4,6 @@ import { ProfileCard } from '@/components/profile/ProfileCard';
 import { CreationStats } from '@/components/profile/CreationStats';
 import { CreationHistory } from '@/components/profile/CreationHistory';
 import { Download } from 'lucide-react';
-import { db } from '@/db';
 
 export default function ProfilePage() {
   const { profile, loadProfile } = useProfileStore();

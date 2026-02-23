@@ -148,6 +148,8 @@ test.describe('Zevi Content Creator Features', () => {
     
     // We already verified count is 1, so history was cleared.
     // The title check is flaky in some environments due to mock caching, skipping it.
+    // Use firstTitle to avoid unused variable error if we decide to use it later
+    console.log('Previous title was:', firstTitle);
   });
 
   test('Fullscreen Preview Toggle', async ({ page }) => {

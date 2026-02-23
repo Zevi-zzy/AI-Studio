@@ -55,6 +55,7 @@ export interface Profile {
   createdAt: Date;
   settings?: {
     defaultTone: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     aiPreferences: Record<string, any>;
     theme: 'light' | 'dark';
   };

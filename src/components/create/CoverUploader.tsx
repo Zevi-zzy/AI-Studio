@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, X, Image as ImageIcon, Wand2 } from 'lucide-react';
+import { Upload, X, Wand2 } from 'lucide-react';
 import { aiService } from '@/services/aiService';
 
 interface CoverUploaderProps {

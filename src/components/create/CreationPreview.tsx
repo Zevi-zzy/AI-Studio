@@ -1,5 +1,5 @@
 import { Creation } from '@/types';
-import { X, Heart, Star, MessageCircle, Share2, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Heart, Star, MessageCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { useState } from 'react';
 import clsx from 'clsx';
 

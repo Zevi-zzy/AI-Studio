@@ -1,6 +1,6 @@
 import { Tag } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useCreationStore, useInspirationStore } from '@/stores';
 import { TitleEditor } from '@/components/create/TitleEditor';
 import { CoverUploader } from '@/components/create/CoverUploader';
@@ -75,6 +75,7 @@ export default function CreatePage() {
          setViewMode('list');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, inspirationId, loadCreation, inspirations]);
 
   // Sync currentCreation to formData
@@ -143,9 +144,9 @@ export default function CreatePage() {
     try {
       const optimizedTitle = await aiService.optimizeTitle(formData.title);
       setFormData(prev => ({ ...prev, title: optimizedTitle }));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to optimize title', error);
-      alert(`标题优化失败: ${error.message || '未知错误'}`);
+      alert(`标题优化失败: ${(error as Error).message || '未知错误'}`);
     } finally {
       setIsOptimizingTitle(false);
     }
@@ -158,9 +159,9 @@ export default function CreatePage() {
     try {
       const optimizedContent = await aiService.optimizeContent(formData.content, formData.title);
       setFormData(prev => ({ ...prev, content: optimizedContent }));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to optimize content', error);
-      alert(`正文优化失败: ${error.message || '未知错误'}`);
+      alert(`正文优化失败: ${(error as Error).message || '未知错误'}`);
     } finally {
       setIsOptimizingContent(false);
     }

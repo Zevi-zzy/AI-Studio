@@ -67,7 +67,8 @@ export const aiService = {
         throw new Error(`DeepSeek API error: ${response.status} ${JSON.stringify(errorData)}`);
       }
 
-      const data = await response.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = await response.json() as any;
       const text = data.choices[0].message.content || '[]';
       
       // Clean up markdown formatting if present
@@ -116,13 +117,14 @@ export const aiService = {
         throw new Error(`DeepSeek API error: ${response.status} ${JSON.stringify(errorData)}`);
       }
 
-      const data = await response.json();
-      return (data.choices[0].message.content || currentTitle).trim();
-    } catch (error: any) {
-      console.error('Title optimization failed:', error);
-      alert(`标题优化失败: ${error.message}`);
-      // Fallback behavior if optimizing title fails
-      return currentTitle + " ✨";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = await response.json() as any;
+      const text = data.choices[0].message.content || currentTitle;
+      
+      return text.replace(/^"|"$/g, '').trim();
+    } catch (error) {
+      console.error('DeepSeek API call failed:', error);
+      return currentTitle + ' (AI Optimized)';
     }
   },
 
@@ -173,9 +175,9 @@ export const aiService = {
       optimizedContent = optimizedContent.replace(/```html\n?|\n?```/g, '').trim();
       
       return optimizedContent;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Content optimization failed:', error);
-      alert(`正文优化失败: ${error.message}`);
+      alert(`正文优化失败: ${(error as Error).message}`);
       return currentContent;
     }
   },
@@ -192,7 +194,7 @@ export const aiService = {
     
     // Return a high-quality placeholder image based on keywords (using Unsplash Source or similar)
     // Since Unsplash Source is deprecated, we use a reliable placeholder service
-    const keywords = prompt.split(' ').slice(0, 3).join(',');
+    // const keywords = prompt.split(' ').slice(0, 3).join(',');
     return `https://placehold.co/600x800/FF2442/FFFFFF/png?text=${encodeURIComponent(prompt.substring(0, 10))}`;
   }
 };

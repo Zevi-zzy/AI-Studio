@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { Lightbulb, PenTool, Image, User, Home } from 'lucide-react';
+import { Lightbulb, PenTool, Image as ImageIcon, User } from 'lucide-react';
 import clsx from 'clsx';
 
 const navItems = [
   { to: '/inspiration', icon: Lightbulb, label: '找灵感' },
   { to: '/create', icon: PenTool, label: '来创作' },
-  { to: '/materials', icon: Image, label: '看素材' },
+  { to: '/materials', icon: ImageIcon, label: '看素材' },
   { to: '/profile', icon: User, label: '我自己' },
 ];
 

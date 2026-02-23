@@ -1,5 +1,5 @@
 import { useState, KeyboardEvent } from 'react';
-import { Hash, X, Plus } from 'lucide-react';
+import { Hash, X } from 'lucide-react';
 
 interface HashtagManagerProps {
   hashtags: string[];

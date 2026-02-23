@@ -1,6 +1,6 @@
 import { Creation } from '@/types';
 import { Link } from 'react-router-dom';
-import { Edit2, Eye } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 
 interface CreationHistoryProps {
   creations: Creation[];

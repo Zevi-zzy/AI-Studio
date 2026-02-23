@@ -12,7 +12,7 @@ interface MaterialBrowserProps {
   className?: string;
 }
 
-export function MaterialBrowser({ materials, onDelete, onSelect, selectedId, className }: MaterialBrowserProps) {
+export function MaterialBrowser({ materials, onDelete, onSelect, className }: MaterialBrowserProps) {
   const [filterType, setFilterType] = useState<'all' | 'image' | 'text'>('all');
   const [searchTag, setSearchTag] = useState('');
 

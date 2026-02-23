@@ -14,7 +14,17 @@ interface RichTextEditorProps {
   isOptimizing?: boolean;
 }
 
-const MenuButton = ({ isActive, onClick, icon: Icon, title, disabled, className }: any) => (
+interface MenuButtonProps {
+  isActive?: boolean;
+  onClick: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: any;
+  title?: string;
+  disabled?: boolean;
+  className?: string;
+}
+
+const MenuButton = ({ isActive, onClick, icon: Icon, title, disabled, className }: MenuButtonProps) => (
   <button
     onClick={onClick}
     disabled={disabled}
