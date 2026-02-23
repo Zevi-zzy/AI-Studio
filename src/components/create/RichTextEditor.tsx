@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { MaterialPicker } from '@/components/materials/MaterialPicker';
 import { Material } from '@/types';
+import { useMaterialStore } from '@/stores';
 
 interface RichTextEditorProps {
   content: string;
@@ -30,6 +31,7 @@ const MenuButton = ({ isActive, onClick, icon: Icon, title, disabled, className 
 
 export function RichTextEditor({ content, onChange, onOptimize, isOptimizing }: RichTextEditorProps) {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const { incrementUsage } = useMaterialStore();
   
   const editor = useEditor({
     extensions: [StarterKit],
@@ -59,6 +61,7 @@ export function RichTextEditor({ content, onChange, onOptimize, isOptimizing }: 
     if (material.type === 'text') {
       // Insert text at current cursor position
       editor.chain().focus().insertContent(material.content).run();
+      incrementUsage(material.id);
     }
   };
 

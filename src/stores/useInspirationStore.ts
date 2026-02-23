@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Inspiration } from '@/types';
 import { db } from '@/db';
+import { aiService } from '@/services/aiService';
 
 interface InspirationState {
   inspirations: Inspiration[];
@@ -9,6 +10,7 @@ interface InspirationState {
   generateInspirations: (keywords: string[]) => Promise<void>;
   adoptInspiration: (id: string) => Promise<void>;
   addInspirations: (inspirations: Inspiration[]) => Promise<void>;
+  clearInspirations: () => Promise<void>;
 }
 
 export const useInspirationStore = create<InspirationState>((set, get) => ({
@@ -20,12 +22,29 @@ export const useInspirationStore = create<InspirationState>((set, get) => ({
     set({ inspirations });
   },
 
+  clearInspirations: async () => {
+    await db.inspirations.clear();
+    set({ inspirations: [] });
+  },
+
   generateInspirations: async (keywords: string[]) => {
     set({ isGenerating: true });
     try {
-      // Logic for generating inspirations will be handled by the UI calling the AI service
-      // This function might be just a placeholder or state setter
-      // But we can persist the result here if needed
+      // Clear previous inspirations
+      await get().clearInspirations();
+
+      const generated = await aiService.generateInspirations({ keywords });
+      
+      const newInspirations: Inspiration[] = generated.map(item => ({
+        ...item,
+        id: crypto.randomUUID(),
+        isAdopted: false,
+        createdAt: new Date(),
+      }));
+
+      await get().addInspirations(newInspirations);
+    } catch (error) {
+      console.error('Failed to generate inspirations:', error);
     } finally {
       set({ isGenerating: false });
     }

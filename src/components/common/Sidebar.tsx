@@ -41,9 +41,9 @@ export function Sidebar() {
 
       <div className="p-4 border-t border-gray-100">
         <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 rounded-xl">
-          <p className="text-xs text-primary-800 font-medium mb-1">Pro Tip</p>
+          <p className="text-xs text-primary-800 font-medium mb-1">小贴士</p>
           <p className="text-[10px] text-primary-600">
-            Use AI to generate inspiration for your next post!
+            使用 AI 为你的下一篇笔记生成灵感！
           </p>
         </div>
       </div>

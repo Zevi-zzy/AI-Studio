@@ -10,7 +10,7 @@ export function CreationHistory({ creations }: CreationHistoryProps) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-100">
-        <h3 className="text-lg font-bold text-gray-900">Creation History</h3>
+        <h3 className="text-lg font-bold text-gray-900">创作历史</h3>
       </div>
       
       <div className="divide-y divide-gray-100">
@@ -24,9 +24,9 @@ export function CreationHistory({ creations }: CreationHistoryProps) {
                   )}
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">{creation.title || 'Untitled'}</h4>
+                  <h4 className="font-medium text-gray-900">{creation.title || '无标题'}</h4>
                   <p className="text-xs text-gray-500">
-                    {new Date(creation.updatedAt).toLocaleDateString()} • {creation.status}
+                    {new Date(creation.updatedAt).toLocaleDateString()} • {creation.status === 'published' ? '已发布' : '草稿'}
                   </p>
                 </div>
               </div>

@@ -21,6 +21,7 @@ export function TextMaterialEditor({ isOpen, onClose }: TextMaterialEditorProps)
       type: 'text',
       content: content.trim(),
       tags: tags.split(/[,，\s]+/).filter(Boolean),
+      usageCount: 0,
       createdAt: new Date(),
     };
 

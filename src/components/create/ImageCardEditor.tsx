@@ -1,8 +1,9 @@
 import { ImageCard } from '@/types';
-import { Plus, X, Upload, FolderOpen } from 'lucide-react';
+import { Plus, X, Upload, FolderOpen, ArrowUp, ArrowDown } from 'lucide-react';
 import { useState } from 'react';
 import { MaterialPicker } from '@/components/materials/MaterialPicker';
 import { Material } from '@/types';
+import { useMaterialStore } from '@/stores';
 
 interface ImageCardEditorProps {
   cards: ImageCard[];
@@ -11,6 +12,7 @@ interface ImageCardEditorProps {
 
 export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const { incrementUsage } = useMaterialStore();
 
   const addCard = () => {
     const newCard: ImageCard = {
@@ -30,6 +32,23 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
     onChange(cards.filter(card => card.id !== id));
   };
 
+  const moveCard = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === cards.length - 1) return;
+
+    const newCards = [...cards];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [newCards[index], newCards[targetIndex]] = [newCards[targetIndex], newCards[index]];
+    
+    // Update orderIndex
+    const reorderedCards = newCards.map((card, idx) => ({
+      ...card,
+      orderIndex: idx
+    }));
+    
+    onChange(reorderedCards);
+  };
+
   const handleImageUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -44,6 +63,7 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
   const handlePickMaterial = (material: Material) => {
     if (activeCardId && material.type === 'image') {
       updateCard(activeCardId, { image: material.content });
+      incrementUsage(material.id);
     }
   };
 
@@ -61,13 +81,34 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {cards.map((card, index) => (
-          <div key={card.id} className="border border-gray-200 rounded-xl p-4 bg-white relative group">
-            <button
-              onClick={() => removeCard(card.id)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          <div key={card.id} className="border border-gray-200 rounded-xl p-4 bg-white relative group transition-all duration-200 hover:shadow-md">
+            <div className="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+               <div className="flex bg-gray-100 rounded-lg p-0.5 mr-2">
+                <button
+                  onClick={() => moveCard(index, 'up')}
+                  disabled={index === 0}
+                  className="p-1 text-gray-500 hover:text-primary hover:bg-white rounded disabled:opacity-30 disabled:hover:bg-transparent"
+                  title="上移"
+                >
+                  <ArrowUp className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => moveCard(index, 'down')}
+                  disabled={index === cards.length - 1}
+                  className="p-1 text-gray-500 hover:text-primary hover:bg-white rounded disabled:opacity-30 disabled:hover:bg-transparent"
+                  title="下移"
+                >
+                  <ArrowDown className="w-4 h-4" />
+                </button>
+              </div>
+              <button
+                onClick={() => removeCard(card.id)}
+                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                title="删除"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
             <div className="flex gap-4">
               <div className="w-24 h-32 flex-shrink-0 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center relative overflow-hidden group/image">
@@ -101,7 +142,7 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
                 </div>
               </div>
 
-              <div className="flex-1">
+              <div className="flex-1 pt-6">
                 <textarea
                   value={card.description}
                   onChange={(e) => updateCard(card.id, { description: e.target.value })}
@@ -111,7 +152,7 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
               </div>
             </div>
             
-            <div className="mt-2 text-xs text-gray-400 text-center">
+            <div className="absolute bottom-2 left-4 text-xs text-gray-400 font-medium">
               卡片 {index + 1}
             </div>
           </div>

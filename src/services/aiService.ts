@@ -179,4 +179,20 @@ export const aiService = {
       return currentContent;
     }
   },
+
+  generateImage: async (prompt: string): Promise<string> => {
+    // DeepSeek API doesn't support image generation natively yet,
+    // so we'll mock this or use a placeholder service if available.
+    // For a real implementation, you would call DALL-E or Stable Diffusion API here.
+    
+    console.log('Generating image for prompt:', prompt);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Return a high-quality placeholder image based on keywords (using Unsplash Source or similar)
+    // Since Unsplash Source is deprecated, we use a reliable placeholder service
+    const keywords = prompt.split(' ').slice(0, 3).join(',');
+    return `https://placehold.co/600x800/FF2442/FFFFFF/png?text=${encodeURIComponent(prompt.substring(0, 10))}`;
+  }
 };

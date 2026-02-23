@@ -28,7 +28,7 @@ export function HashtagManager({ hashtags, onChange }: HashtagManagerProps) {
     onChange(hashtags.filter(tag => tag !== tagToRemove));
   };
 
-  const suggestedTags = ['ootd', 'daily', 'lifestyle', 'travel', 'food'];
+  const suggestedTags = ['穿搭', '日常', '生活方式', '旅行', '美食'];
 
   return (
     <div className="space-y-3">

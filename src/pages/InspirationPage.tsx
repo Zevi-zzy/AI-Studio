@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useInspirationStore } from '@/stores';
 import { KeywordInput } from '@/components/inspiration/KeywordInput';
 import { InspirationCard } from '@/components/inspiration/InspirationCard';
-import { aiService } from '@/services/aiService';
-import { Inspiration } from '@/types';
 
 export default function InspirationPage() {
   const navigate = useNavigate();
@@ -12,7 +10,7 @@ export default function InspirationPage() {
     inspirations, 
     isGenerating, 
     loadInspirations, 
-    addInspirations, 
+    generateInspirations,
     adoptInspiration 
   } = useInspirationStore();
 
@@ -21,34 +19,7 @@ export default function InspirationPage() {
   }, [loadInspirations]);
 
   const handleGenerate = async (keywords: string[]) => {
-    // In a real app, we would set isGenerating in the store here or inside the store method
-    // For now, let's just call the service and add to store
-    // Ideally, the store should handle the service call
-    
-    // Let's use the store's generate method if we implemented it fully, 
-    // but in my store implementation I left it as a placeholder. 
-    // So I will implement the logic here for now or update the store.
-    // Updating the store is better practice.
-    
-    // But since I cannot edit the store file easily without rewriting it, 
-    // I will do the logic here for this iteration and maybe refactor later.
-    // Actually, I should update the store to use the service.
-    
-    // Wait, I can just use the service here and call addInspirations.
-    try {
-      const generated = await aiService.generateInspirations({ keywords });
-      
-      const newInspirations: Inspiration[] = generated.map(item => ({
-        ...item,
-        id: crypto.randomUUID(),
-        isAdopted: false,
-        createdAt: new Date(),
-      }));
-
-      await addInspirations(newInspirations);
-    } catch (error) {
-      console.error('Failed to generate inspiration', error);
-    }
+    await generateInspirations(keywords);
   };
 
   const handleAdopt = async (id: string) => {

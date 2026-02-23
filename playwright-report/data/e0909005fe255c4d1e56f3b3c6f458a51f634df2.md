@@ -1,0 +1,46 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - heading "✨ Zevi AI Studio" [level=1] [ref=e6]:
+          - generic [ref=e7]: ✨
+          - text: Zevi AI Studio
+        - paragraph [ref=e8]: 小红书图文内容生成工具
+      - navigation [ref=e9]:
+        - link "找灵感" [ref=e10] [cursor=pointer]:
+          - /url: /inspiration
+          - img [ref=e11]
+          - generic [ref=e13]: 找灵感
+        - link "来创作" [ref=e14] [cursor=pointer]:
+          - /url: /create
+          - img [ref=e15]
+          - generic [ref=e20]: 来创作
+        - link "看素材" [ref=e21] [cursor=pointer]:
+          - /url: /materials
+          - img [ref=e22]
+          - generic [ref=e26]: 看素材
+        - link "我自己" [ref=e27] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e28]
+          - generic [ref=e31]: 我自己
+      - generic [ref=e33]:
+        - paragraph [ref=e34]: 小贴士
+        - paragraph [ref=e35]: 使用 AI 为你的下一篇笔记生成灵感！
+    - main [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - heading "寻找灵感" [level=1] [ref=e39]
+          - paragraph [ref=e40]: 发现下一个爆款笔记的创作灵感。
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - img [ref=e44]
+            - textbox "输入关键词并按回车（例如：'夏日', '旅行'）..." [ref=e47]
+          - button "生成灵感" [disabled] [ref=e48]
+        - paragraph [ref=e50]: 暂无灵感，请在上方输入关键词开始搜索！
+  - generic [ref=e52] [cursor=pointer]:
+    - img [ref=e54]
+    - img [ref=e62]
+```

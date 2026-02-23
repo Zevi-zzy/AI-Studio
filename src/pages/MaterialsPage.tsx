@@ -3,13 +3,15 @@ import { useMaterialStore } from '@/stores';
 import { MaterialBrowser } from '@/components/materials/MaterialBrowser';
 import { TextMaterialEditor } from '@/components/materials/TextMaterialEditor';
 import { MaterialDetailModal } from '@/components/materials/MaterialDetailModal';
-import { Upload, Plus, Type } from 'lucide-react';
+import { Upload, Plus, Type, Wand2 } from 'lucide-react';
 import { Material } from '@/types';
+import { aiService } from '@/services/aiService';
 
 export default function MaterialsPage() {
   const { materials, loadMaterials, addMaterial, deleteMaterial } = useMaterialStore();
   const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   useEffect(() => {
     loadMaterials();
@@ -38,6 +40,31 @@ export default function MaterialsPage() {
           reader.readAsText(file);
         }
       });
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    const prompt = window.prompt('请输入图片描述关键词：', '小红书风格，生活方式，极简主义');
+    if (!prompt) return;
+
+    setIsGeneratingImage(true);
+    try {
+      const imageUrl = await aiService.generateImage(prompt);
+      const newMaterial: Material = {
+        id: crypto.randomUUID(),
+        type: 'image',
+        content: imageUrl,
+        filename: `AI-Generated-${Date.now()}.png`,
+        tags: ['AI生成', ...prompt.split(' ')],
+        usageCount: 0,
+        createdAt: new Date(),
+      };
+      await addMaterial(newMaterial);
+    } catch (error) {
+      console.error('Failed to generate image', error);
+      alert('生成图片失败，请重试');
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
 
@@ -78,6 +105,14 @@ export default function MaterialsPage() {
         </div>
         
         <div className="flex gap-3">
+          <button
+            onClick={handleGenerateImage}
+            disabled={isGeneratingImage}
+            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 font-medium shadow-sm disabled:opacity-50"
+          >
+            <Wand2 className={`w-4 h-4 ${isGeneratingImage ? 'animate-spin' : ''}`} />
+            {isGeneratingImage ? '生成中...' : 'AI 生成图片'}
+          </button>
           <button
             onClick={() => setIsTextEditorOpen(true)}
             className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 font-medium"
