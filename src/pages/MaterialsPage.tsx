@@ -73,7 +73,7 @@ export default function MaterialsPage() {
             type: 'image',
             content: imageUrl,
             filename: `AI-Card-${Date.now()}.png`,
-            tags: ['AI生成', '图文卡片'],
+            tags: design.tags || ['AI生成', '图文卡片'],
             usageCount: 0,
             createdAt: new Date(),
           };

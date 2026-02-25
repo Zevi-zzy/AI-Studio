@@ -294,7 +294,7 @@ export const aiService = {
     }
   },
 
-  generateCardStyling: async (description: string): Promise<{ background: string; textColor: string; layout: 'center' | 'left' | 'split'; accentColor: string }> => {
+  generateCardStyling: async (description: string): Promise<{ background: string; textColor: string; layout: 'center' | 'left' | 'split'; accentColor: string; tags: string[] }> => {
     // Reuse the logic but tailored prompt if needed, or just map to cover styling for consistency
     // For now, we can use a slightly different prompt to emphasize it's for a content card
     if (!DEEPSEEK_API_KEY) {
@@ -302,20 +302,22 @@ export const aiService = {
         background: 'linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)',
         textColor: '#2d3748',
         layout: 'left',
-        accentColor: '#4fd1c5'
+        accentColor: '#4fd1c5',
+        tags: ['AI生成', '图文卡片']
       };
     }
 
     try {
       const prompt = `
-        你是一个专业的设计师。请根据这段文字内容 "${description.substring(0, 50)}" 设计一个适合阅读的图文卡片配色方案。
+        你是一个专业的设计师和内容策划。请根据这段文字内容 "${description.substring(0, 50)}" 设计一个适合阅读的图文卡片配色方案，并提取 3-5 个相关的内容标签。
         
         请返回以下 JSON 格式（不要包含 Markdown）：
         {
           "background": "CSS背景样式，推荐柔和的渐变或纯色",
           "textColor": "文字颜色 HEX，需保证可读性",
           "layout": "布局方式，'center' (居中), 'left' (左对齐), 或 'split' (上下分割)",
-          "accentColor": "装饰色 HEX"
+          "accentColor": "装饰色 HEX",
+          "tags": ["标签1", "标签2", "标签3"]
         }
       `;
 
@@ -346,7 +348,8 @@ export const aiService = {
         background: 'linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)',
         textColor: '#2d3748',
         layout: 'left',
-        accentColor: '#4fd1c5'
+        accentColor: '#4fd1c5',
+        tags: ['AI生成', '图文卡片']
       };
     }
   }
