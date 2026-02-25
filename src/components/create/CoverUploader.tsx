@@ -1,15 +1,26 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Upload, X, Wand2 } from 'lucide-react';
 import { aiService } from '@/services/aiService';
+import html2canvas from 'html2canvas';
 
 interface CoverUploaderProps {
   value?: string;
   onChange: (value: string) => void;
+  title?: string;
 }
 
-export function CoverUploader({ value, onChange }: CoverUploaderProps) {
+interface CoverDesign {
+  background: string;
+  textColor: string;
+  layout: 'center' | 'left' | 'split';
+  accentColor: string;
+}
+
+export function CoverUploader({ value, onChange, title }: CoverUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const coverRef = useRef<HTMLDivElement>(null);
+  const [design, setDesign] = useState<CoverDesign | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -23,17 +34,35 @@ export function CoverUploader({ value, onChange }: CoverUploaderProps) {
   };
 
   const handleGenerate = async () => {
-    const prompt = window.prompt('请输入封面图描述关键词：', '小红书风格，生活方式，极简主义');
-    if (!prompt) return;
+    if (!title) {
+      alert('请先填写标题，AI 将根据标题生成封面设计');
+      return;
+    }
 
     setIsGenerating(true);
     try {
-      const imageUrl = await aiService.generateImage(prompt);
-      onChange(imageUrl);
+      // 1. Get styling from AI
+      const styling = await aiService.generateCoverStyling(title);
+      setDesign(styling);
+
+      // 2. Wait for render (using timeout to ensure DOM is updated)
+      setTimeout(async () => {
+        if (coverRef.current) {
+          // 3. Convert DOM to Image
+          const canvas = await html2canvas(coverRef.current, {
+            useCORS: true,
+            scale: 2, // Retina quality
+            backgroundColor: null
+          });
+          const imageUrl = canvas.toDataURL('image/png');
+          onChange(imageUrl);
+        }
+        setIsGenerating(false);
+        setDesign(null); // Clean up
+      }, 500);
     } catch (error) {
-      console.error('Failed to generate image', error);
-      alert('生成图片失败，请重试');
-    } finally {
+      console.error('Failed to generate cover', error);
+      alert('生成封面失败，请重试');
       setIsGenerating(false);
     }
   };
@@ -43,9 +72,46 @@ export function CoverUploader({ value, onChange }: CoverUploaderProps) {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative">
       <label className="block text-sm font-medium text-gray-700">封面图片</label>
       
+      {/* Hidden container for HTML-to-Image generation */}
+      {design && (
+        <div 
+          ref={coverRef}
+          className="fixed top-[-9999px] left-[-9999px] w-[600px] h-[800px] flex flex-col p-12 overflow-hidden shadow-2xl"
+          style={{ 
+            background: design.background,
+            color: design.textColor,
+            alignItems: design.layout === 'center' ? 'center' : 'flex-start',
+            justifyContent: design.layout === 'split' ? 'space-between' : 'center',
+            fontFamily: "'PingFang SC', 'Microsoft YaHei', sans-serif"
+          }}
+        >
+          {/* Decorative Elements */}
+          <div className="absolute top-0 left-0 w-32 h-32 rounded-br-full opacity-20" style={{ background: design.accentColor }} />
+          <div className="absolute bottom-0 right-0 w-48 h-48 rounded-tl-full opacity-20" style={{ background: design.accentColor }} />
+          
+          {/* Main Title */}
+          <h1 
+            className="text-6xl font-bold leading-tight z-10 drop-shadow-sm"
+            style={{ 
+              textAlign: design.layout === 'center' ? 'center' : 'left',
+              textShadow: '0 2px 10px rgba(0,0,0,0.1)'
+            }}
+          >
+            {title}
+          </h1>
+
+          {/* Subtitle / Decoration */}
+          <div className="mt-8 flex items-center gap-3 opacity-80 z-10">
+            <div className="h-1 w-12 rounded-full" style={{ background: design.accentColor }} />
+            <span className="text-2xl tracking-widest font-light">ZEVI NOTES</span>
+            <div className="h-1 w-12 rounded-full" style={{ background: design.accentColor }} />
+          </div>
+        </div>
+      )}
+
       {value ? (
         <div className="relative aspect-[3/4] w-48 rounded-xl overflow-hidden group border border-gray-200">
           <img src={value} alt="Cover" className="w-full h-full object-cover" />

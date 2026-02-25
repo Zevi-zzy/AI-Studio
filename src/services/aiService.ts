@@ -196,5 +196,61 @@ export const aiService = {
     // Since Unsplash Source is deprecated, we use a reliable placeholder service
     // const keywords = prompt.split(' ').slice(0, 3).join(',');
     return `https://placehold.co/600x800/FF2442/FFFFFF/png?text=${encodeURIComponent(prompt.substring(0, 10))}`;
+  },
+
+  generateCoverStyling: async (title: string): Promise<{ background: string; textColor: string; layout: 'center' | 'left' | 'split'; accentColor: string }> => {
+    if (!DEEPSEEK_API_KEY) {
+      // Mock styling
+      return {
+        background: 'linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)',
+        textColor: '#333333',
+        layout: 'center',
+        accentColor: '#FF2442'
+      };
+    }
+
+    try {
+      const prompt = `
+        你是一个专业的设计师。请根据标题 "${title}" 设计一个极简主义风格的小红书封面配色方案。
+        
+        请返回以下 JSON 格式（不要包含 Markdown）：
+        {
+          "background": "CSS背景样式，例如 'linear-gradient(to right, #ffecd2 0%, #fcb69f 100%)' 或单一颜色",
+          "textColor": "文字颜色 HEX",
+          "layout": "布局方式，只能是 'center' (居中), 'left' (左对齐), 或 'split' (上下分割) 之一",
+          "accentColor": "装饰色 HEX"
+        }
+      `;
+
+      const response = await fetch(`${API_BASE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "deepseek-chat",
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = await response.json() as any;
+      const text = data.choices[0].message.content || '{}';
+      const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
+      return JSON.parse(jsonStr);
+    } catch (error) {
+      console.error('Failed to generate cover styling:', error);
+      return {
+        background: 'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
+        textColor: '#1a1a1a',
+        layout: 'center',
+        accentColor: '#3b82f6'
+      };
+    }
   }
 };

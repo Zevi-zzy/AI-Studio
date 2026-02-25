@@ -279,6 +279,7 @@ export default function CreatePage() {
             <CoverUploader
               value={formData.coverImage}
               onChange={(val) => setFormData({ ...formData, coverImage: val })}
+              title={formData.title}
             />
             <TitleEditor
               value={formData.title || ''}
