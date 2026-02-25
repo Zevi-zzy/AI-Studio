@@ -147,14 +147,21 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
           <div className="absolute bottom-0 left-0 w-32 h-32 rounded-tr-full opacity-20" style={{ background: generationData.design.accentColor }} />
           
           {/* Main Text */}
-          <p 
-            className="text-4xl font-bold leading-relaxed z-10 drop-shadow-sm whitespace-pre-wrap"
-            style={{ 
-              textAlign: generationData.design.layout === 'center' ? 'center' : 'left',
-            }}
-          >
-            {generationData.text}
-          </p>
+          <div className="flex-1 flex items-center justify-center w-full px-8">
+            <p 
+              className="text-4xl font-bold leading-relaxed z-10 drop-shadow-sm whitespace-pre-wrap break-words w-full"
+              style={{ 
+                textAlign: generationData.design.layout === 'center' ? 'center' : 'left',
+                maxHeight: '100%',
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 8,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {generationData.text}
+            </p>
+          </div>
 
           {/* Decoration */}
           <div className="mt-6 flex items-center gap-2 opacity-60 z-10">
