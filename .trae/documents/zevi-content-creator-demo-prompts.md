@@ -298,3 +298,23 @@
 - 插件化设计支持自定义功能
 - 主题系统支持个性化定制
 - API抽象层便于切换AI服务提供商
+
+## 新增功能实现提示词 (Phase 2)
+
+### AI 智能设计与图片生成
+
+```
+1. 封面生成器 (Cover Generator):
+   - 基于 HTML + CSS 动态渲染封面预览
+   - 使用 html2canvas 将 DOM 节点转换为 PNG 图片
+   - AI Prompt: 根据标题生成极简主义配色的 CSS 样式 (background, text color, layout)
+
+2. 图文卡片增强 (Image Card Enhancements):
+   - 集成 AI 文案优化：点击魔法棒优化卡片描述
+   - 集成 AI 配图生成：点击 Sparkles 按钮，根据描述自动生成排版精美的卡片图片
+   - 技术方案同上：HTML 渲染 -> Canvas 截图
+
+3. 素材库 AI 生成:
+   - 新增 "AI 生成图片" 按钮
+   - 输入 Prompt -> AI 设计样式 + 自动提取标签 -> 生成图片并保存到 IndexedDB
+```
