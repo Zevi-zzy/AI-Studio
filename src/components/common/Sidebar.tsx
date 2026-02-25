@@ -46,6 +46,7 @@ export function Sidebar() {
             使用 AI 为你的下一篇笔记生成灵感！
           </p>
         </div>
+        <p className="text-[10px] text-gray-400 mt-4 text-center">v1.0.3 (2026-02-25)</p>
       </div>
     </div>
   );
