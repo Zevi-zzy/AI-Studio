@@ -5,6 +5,7 @@ import { KeywordInput } from '@/components/inspiration/KeywordInput';
 import { InspirationCard } from '@/components/inspiration/InspirationCard';
 
 export default function InspirationPage() {
+  // Last updated: 2026-02-25
   const navigate = useNavigate();
   const { 
     inspirations, 
