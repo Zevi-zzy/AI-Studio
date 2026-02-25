@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useMaterialStore } from '@/stores';
 import { MaterialBrowser } from '@/components/materials/MaterialBrowser';
 import { TextMaterialEditor } from '@/components/materials/TextMaterialEditor';
@@ -6,12 +6,17 @@ import { MaterialDetailModal } from '@/components/materials/MaterialDetailModal'
 import { Upload, Plus, Type, Wand2 } from 'lucide-react';
 import { Material } from '@/types';
 import { aiService } from '@/services/aiService';
+import html2canvas from 'html2canvas';
 
 export default function MaterialsPage() {
   const { materials, loadMaterials, addMaterial, deleteMaterial } = useMaterialStore();
   const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  
+  // State for generation rendering
+  const [generationData, setGenerationData] = useState<{ design: any; text: string } | null>(null);
+  const hiddenRenderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadMaterials();
@@ -44,27 +49,44 @@ export default function MaterialsPage() {
   };
 
   const handleGenerateImage = async () => {
-    const prompt = window.prompt('请输入图片描述关键词：', '小红书风格，生活方式，极简主义');
+    const prompt = window.prompt('请输入图片描述文字（AI 将为您自动设计排版）：', '例如：极简生活方式');
     if (!prompt) return;
 
     setIsGeneratingImage(true);
     try {
-      const imageUrl = await aiService.generateImage(prompt);
-      const newMaterial: Material = {
-        id: crypto.randomUUID(),
-        type: 'image',
-        content: imageUrl,
-        filename: `AI-Generated-${Date.now()}.png`,
-        tags: ['AI生成', ...prompt.split(' ')],
-        usageCount: 0,
-        createdAt: new Date(),
-      };
-      await addMaterial(newMaterial);
+      // 1. Get styling from AI
+      const design = await aiService.generateCardStyling(prompt);
+      setGenerationData({ design, text: prompt });
+
+      // 2. Wait for render & capture
+      setTimeout(async () => {
+        if (hiddenRenderRef.current) {
+          const canvas = await html2canvas(hiddenRenderRef.current, {
+            useCORS: true,
+            scale: 2,
+            backgroundColor: null
+          });
+          const imageUrl = canvas.toDataURL('image/png');
+          
+          const newMaterial: Material = {
+            id: crypto.randomUUID(),
+            type: 'image',
+            content: imageUrl,
+            filename: `AI-Card-${Date.now()}.png`,
+            tags: ['AI生成', '图文卡片'],
+            usageCount: 0,
+            createdAt: new Date(),
+          };
+          await addMaterial(newMaterial);
+        }
+        setGenerationData(null);
+        setIsGeneratingImage(false);
+      }, 500);
     } catch (error) {
       console.error('Failed to generate image', error);
       alert('生成图片失败，请重试');
-    } finally {
       setIsGeneratingImage(false);
+      setGenerationData(null);
     }
   };
 
@@ -97,7 +119,48 @@ export default function MaterialsPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-8">
+    <div className="max-w-6xl mx-auto p-8 relative">
+      {/* Hidden container for HTML-to-Image generation */}
+      {generationData && (
+        <div 
+          ref={hiddenRenderRef}
+          className="fixed top-[-9999px] left-[-9999px] w-[600px] h-[600px] flex flex-col p-8 overflow-hidden shadow-2xl"
+          style={{ 
+            background: generationData.design.background,
+            color: generationData.design.textColor,
+            alignItems: generationData.design.layout === 'center' ? 'center' : 'flex-start',
+            justifyContent: 'center',
+            fontFamily: "'PingFang SC', 'Microsoft YaHei', sans-serif"
+          }}
+        >
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20" style={{ background: generationData.design.accentColor }} />
+          <div className="absolute bottom-0 left-0 w-32 h-32 rounded-tr-full opacity-20" style={{ background: generationData.design.accentColor }} />
+          
+          {/* Main Text */}
+          <div className="flex-1 flex items-center justify-center w-full px-8">
+            <p 
+              className="text-4xl font-bold leading-relaxed z-10 drop-shadow-sm whitespace-pre-wrap break-words w-full"
+              style={{ 
+                textAlign: generationData.design.layout === 'center' ? 'center' : 'left',
+                maxHeight: '100%',
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 8,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {generationData.text}
+            </p>
+          </div>
+
+          {/* Decoration */}
+          <div className="mt-6 flex items-center gap-2 opacity-60 z-10">
+            <div className="h-1 w-8 rounded-full" style={{ background: generationData.design.accentColor }} />
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">素材库</h1>

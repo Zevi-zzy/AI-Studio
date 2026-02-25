@@ -33,16 +33,17 @@ export function InspirationCard({ inspiration, onAdopt }: InspirationCardProps) 
 
       <button
         onClick={() => onAdopt(inspiration.id)}
-        disabled={inspiration.isAdopted}
         className={clsx(
           "w-full py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors",
           inspiration.isAdopted
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            ? "bg-green-50 text-green-600 hover:bg-green-100"
             : "bg-primary text-white hover:bg-primary-600"
         )}
       >
         {inspiration.isAdopted ? (
-          "已采纳"
+          <>
+            <Plus className="w-4 h-4" /> 再次采纳
+          </>
         ) : (
           <>
             <Plus className="w-4 h-4" /> 采纳灵感
