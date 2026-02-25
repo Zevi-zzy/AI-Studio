@@ -252,5 +252,102 @@ export const aiService = {
         accentColor: '#3b82f6'
       };
     }
+  },
+
+  optimizeCardDescription: async (description: string): Promise<string> => {
+    if (!DEEPSEEK_API_KEY) {
+      return description + ' (AI Optimized)';
+    }
+
+    try {
+      const prompt = `
+        请优化以下小红书图文卡片的描述文字，使其更简洁、有吸引力，适合作为图片上的配文。
+        原描述: "${description}"
+        
+        请直接返回优化后的文字，不要包含引号，字数控制在 50 字以内。
+      `;
+      
+      const response = await fetch(`${API_BASE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "deepseek-chat",
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = await response.json() as any;
+      const text = data.choices[0].message.content || description;
+      
+      return text.replace(/^"|"$/g, '').trim();
+    } catch (error) {
+      console.error('Failed to optimize card description:', error);
+      return description;
+    }
+  },
+
+  generateCardStyling: async (description: string): Promise<{ background: string; textColor: string; layout: 'center' | 'left' | 'split'; accentColor: string }> => {
+    // Reuse the logic but tailored prompt if needed, or just map to cover styling for consistency
+    // For now, we can use a slightly different prompt to emphasize it's for a content card
+    if (!DEEPSEEK_API_KEY) {
+      return {
+        background: 'linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)',
+        textColor: '#2d3748',
+        layout: 'left',
+        accentColor: '#4fd1c5'
+      };
+    }
+
+    try {
+      const prompt = `
+        你是一个专业的设计师。请根据这段文字内容 "${description.substring(0, 50)}" 设计一个适合阅读的图文卡片配色方案。
+        
+        请返回以下 JSON 格式（不要包含 Markdown）：
+        {
+          "background": "CSS背景样式，推荐柔和的渐变或纯色",
+          "textColor": "文字颜色 HEX，需保证可读性",
+          "layout": "布局方式，'center' (居中), 'left' (左对齐), 或 'split' (上下分割)",
+          "accentColor": "装饰色 HEX"
+        }
+      `;
+
+      const response = await fetch(`${API_BASE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "deepseek-chat",
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = await response.json() as any;
+      const text = data.choices[0].message.content || '{}';
+      const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
+      return JSON.parse(jsonStr);
+    } catch (error) {
+      console.error('Failed to generate card styling:', error);
+      return {
+        background: 'linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)',
+        textColor: '#2d3748',
+        layout: 'left',
+        accentColor: '#4fd1c5'
+      };
+    }
   }
 };

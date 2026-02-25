@@ -1,17 +1,31 @@
 import { ImageCard } from '@/types';
-import { Plus, X, Upload, FolderOpen, ArrowUp, ArrowDown } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, X, Upload, FolderOpen, ArrowUp, ArrowDown, Wand2, Sparkles } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { MaterialPicker } from '@/components/materials/MaterialPicker';
 import { Material } from '@/types';
 import { useMaterialStore } from '@/stores';
+import { aiService } from '@/services/aiService';
+import html2canvas from 'html2canvas';
 
 interface ImageCardEditorProps {
   cards: ImageCard[];
   onChange: (cards: ImageCard[]) => void;
 }
 
+interface CardDesign {
+  background: string;
+  textColor: string;
+  layout: 'center' | 'left' | 'split';
+  accentColor: string;
+}
+
 export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [optimizingCardId, setOptimizingCardId] = useState<string | null>(null);
+  const [generatingImageCardId, setGeneratingImageCardId] = useState<string | null>(null);
+  const [generationData, setGenerationData] = useState<{ cardId: string; design: CardDesign; text: string } | null>(null);
+  const hiddenCardRef = useRef<HTMLDivElement>(null);
+  
   const { incrementUsage } = useMaterialStore();
 
   const addCard = () => {
@@ -67,8 +81,88 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
     }
   };
 
+  const handleOptimizeDescription = async (card: ImageCard) => {
+    if (!card.description) return;
+    setOptimizingCardId(card.id);
+    try {
+      const optimized = await aiService.optimizeCardDescription(card.description);
+      updateCard(card.id, { description: optimized });
+    } catch (error) {
+      console.error(error);
+      alert('优化失败');
+    } finally {
+      setOptimizingCardId(null);
+    }
+  };
+
+  const handleGenerateImage = async (card: ImageCard) => {
+    if (!card.description) {
+      alert('请先填写描述文字，AI 将根据描述生成图片');
+      return;
+    }
+    
+    setGeneratingImageCardId(card.id);
+
+    try {
+      const design = await aiService.generateCardStyling(card.description);
+      setGenerationData({ cardId: card.id, design, text: card.description });
+      
+      setTimeout(async () => {
+        if (hiddenCardRef.current) {
+           const canvas = await html2canvas(hiddenCardRef.current, {
+             useCORS: true,
+             scale: 2,
+             backgroundColor: null
+           });
+           const imageUrl = canvas.toDataURL('image/png');
+           updateCard(card.id, { image: imageUrl });
+        }
+        setGenerationData(null);
+        setGeneratingImageCardId(null);
+      }, 500);
+    } catch (error) {
+      console.error(error);
+      alert('生成图片失败');
+      setGeneratingImageCardId(null);
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
+      {/* Hidden container for HTML-to-Image generation */}
+      {generationData && (
+        <div 
+          ref={hiddenCardRef}
+          className="fixed top-[-9999px] left-[-9999px] w-[600px] h-[600px] flex flex-col p-8 overflow-hidden shadow-2xl"
+          style={{ 
+            background: generationData.design.background,
+            color: generationData.design.textColor,
+            alignItems: generationData.design.layout === 'center' ? 'center' : 'flex-start',
+            justifyContent: 'center',
+            fontFamily: "'PingFang SC', 'Microsoft YaHei', sans-serif"
+          }}
+        >
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20" style={{ background: generationData.design.accentColor }} />
+          <div className="absolute bottom-0 left-0 w-32 h-32 rounded-tr-full opacity-20" style={{ background: generationData.design.accentColor }} />
+          
+          {/* Main Text */}
+          <p 
+            className="text-4xl font-bold leading-relaxed z-10 drop-shadow-sm whitespace-pre-wrap"
+            style={{ 
+              textAlign: generationData.design.layout === 'center' ? 'center' : 'left',
+            }}
+          >
+            {generationData.text}
+          </p>
+
+          {/* Decoration */}
+          <div className="mt-6 flex items-center gap-2 opacity-60 z-10">
+            <div className="h-1 w-8 rounded-full" style={{ background: generationData.design.accentColor }} />
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <label className="block text-sm font-medium text-gray-700">图文卡片</label>
         <button
@@ -116,8 +210,14 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
                   <img src={card.image} alt="Card" className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center gap-2">
-                    <Upload className="w-6 h-6 text-gray-300" />
-                    <span className="text-[10px] text-gray-400">上传</span>
+                    {generatingImageCardId === card.id ? (
+                      <Sparkles className="w-6 h-6 text-primary animate-spin" />
+                    ) : (
+                      <Upload className="w-6 h-6 text-gray-300" />
+                    )}
+                    <span className="text-[10px] text-gray-400">
+                      {generatingImageCardId === card.id ? '生成中' : '上传'}
+                    </span>
                   </div>
                 )}
                 
@@ -139,16 +239,32 @@ export function ImageCardEditor({ cards, onChange }: ImageCardEditorProps) {
                   >
                     <FolderOpen className="w-4 h-4" />
                   </button>
+                  <button 
+                    onClick={() => handleGenerateImage(card)}
+                    className="p-1.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 rounded-full cursor-pointer text-white transition-colors" 
+                    title="AI 生成图片 (基于描述)"
+                    disabled={!!generatingImageCardId}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
-              <div className="flex-1 pt-6">
+              <div className="flex-1 pt-6 relative">
                 <textarea
                   value={card.description}
                   onChange={(e) => updateCard(card.id, { description: e.target.value })}
                   placeholder="描述这张图片..."
-                  className="w-full h-full p-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                  className="w-full h-full p-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary resize-none pr-8"
                 />
+                <button
+                  onClick={() => handleOptimizeDescription(card)}
+                  disabled={!card.description || !!optimizingCardId}
+                  className="absolute bottom-2 right-2 p-1.5 text-gray-400 hover:text-primary hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-30"
+                  title="AI 优化文案"
+                >
+                  <Wand2 className={`w-4 h-4 ${optimizingCardId === card.id ? 'animate-spin text-primary' : ''}`} />
+                </button>
               </div>
             </div>
             
